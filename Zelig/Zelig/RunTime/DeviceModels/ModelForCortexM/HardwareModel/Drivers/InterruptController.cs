@@ -47,8 +47,7 @@ namespace Microsoft.DeviceModels.Chipset.CortexM.Drivers
         /// </summary>
         public struct InterruptData
         {
-            public uint    Context;
-            public uint    Subcontext;
+            public ulong   Context;
             public Handler Handler;
         }
 
@@ -245,8 +244,7 @@ namespace Microsoft.DeviceModels.Chipset.CortexM.Drivers
         {
             ProcessInterrupt( false );
         }
-
-////    [RT.MemoryRequirements( RT.MemoryAttributes.Unpaged )]
+        
         public void ProcessFastInterrupt()
         {
             ProcessInterrupt( true );
@@ -255,10 +253,10 @@ namespace Microsoft.DeviceModels.Chipset.CortexM.Drivers
         public void ProcessInterrupt( bool fFastOnly )
         {
             InterruptData data;
-            int activeInterrupt = GetNextActiveInterupt();
 
-            data.Context    = 0;
-            data.Subcontext = 0;
+            int activeInterrupt = GetNextActiveInterrupt();
+
+            data.Context = 0;
 
             while (activeInterrupt != c_Invalid)
             {
@@ -291,11 +289,12 @@ namespace Microsoft.DeviceModels.Chipset.CortexM.Drivers
                 }
 
                 ClearInterrupt(activeInterrupt);
-                activeInterrupt = GetNextActiveInterupt();
+
+                activeInterrupt = GetNextActiveInterrupt();
             }
         }
     
-        public virtual int GetNextActiveInterupt()
+        public virtual int GetNextActiveInterrupt()
         {
             return c_Invalid; 
         }
@@ -306,7 +305,7 @@ namespace Microsoft.DeviceModels.Chipset.CortexM.Drivers
 
         public void CauseInterrupt()
         {
-            NVIC.SetPending( Board.Instance.GetSystemTimerIRQNumber() ); 
+            NVIC.SetPending( Board.Instance.GetSystemTimerIRQ() ); 
         }
 
         public void ContinueUnderNormalInterrupt( RT.Peripherals.Continuation dlg )

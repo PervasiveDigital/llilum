@@ -26,8 +26,18 @@ namespace Microsoft.DeviceModels.Chipset.CortexM
         }
 
         public abstract int PinToIndex( int pin );
-        
+
         public abstract int NCPin
+        {
+            get;
+        }
+
+        public abstract int[ ] LedPins
+        {
+            get;
+        }
+
+        public abstract int[ ] PwmPins
         {
             get;
         }
@@ -35,24 +45,28 @@ namespace Microsoft.DeviceModels.Chipset.CortexM
         //
         // Serial Methods
         //
-        public abstract string[] GetSerialPorts();
+        public abstract string[ ] GetSerialPorts( );
 
-        public abstract SerialPortInfo GetSerialPortInfo(string portName);
+        public abstract SerialPortInfo GetSerialPortInfo( string portName );
 
-        public abstract int GetSerialPortIRQNumber(string portName);
+        public abstract int GetSerialPortIRQ( string portName );
+
+        //////public abstract void RemapSerialPortInterrupts( );
 
         //
         // System timer
         //
-        public abstract int GetSystemTimerIRQNumber( );
-                
+        public abstract int GetSystemTimerIRQ( );
+
+        //--//
+
         //
         // Factory methods
         //
 
         public static extern Board Instance
         {
-            [SingletonFactory()]
+            [SingletonFactory( )]
             [MethodImpl( MethodImplOptions.InternalCall )]
             get;
         }

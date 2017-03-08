@@ -8,11 +8,11 @@ namespace Microsoft.Zelig.LlilumOSAbstraction.HAL
     using System;
     using System.Runtime.InteropServices;
 
-    public unsafe delegate void TimerCallback( ulong time );
+    public unsafe delegate void TimerCallback( UIntPtr context, ulong time );
 
     public static class Timer
     {
-        public static unsafe uint LLOS_SYSTEM_TIMER_AllocateTimer( TimerCallback callback, ulong microsecondsFromNow, TimerContext** pTimer )
+        public static unsafe uint LLOS_SYSTEM_TIMER_AllocateTimer( TimerCallback callback, UIntPtr callbackContext, ulong microsecondsFromNow, TimerContext** pTimer )
         {
             UIntPtr callbackPtr = UIntPtr.Zero;
             UIntPtr callbackCtx = UIntPtr.Zero;
@@ -26,7 +26,7 @@ namespace Microsoft.Zelig.LlilumOSAbstraction.HAL
                 callbackCtx = ( (ObjectImpl)callback.Target ).ToPointer( );
             }
 
-            return LLOS_SYSTEM_TIMER_AllocateTimer( callbackPtr, callbackCtx, microsecondsFromNow, pTimer );
+            return LLOS_SYSTEM_TIMER_AllocateTimer( callbackPtr, callbackContext != UIntPtr.Zero ? callbackContext : callbackCtx, microsecondsFromNow, pTimer );
         }
 
         [DllImport( "C" )]
@@ -37,7 +37,7 @@ namespace Microsoft.Zelig.LlilumOSAbstraction.HAL
         public static unsafe extern ulong LLOS_SYSTEM_TIMER_GetTimerFrequency( TimerContext* pTimer );
 
         [DllImport( "C" )]
-        private static unsafe extern uint LLOS_SYSTEM_TIMER_AllocateTimer( UIntPtr callback, UIntPtr timerContext, ulong microsecondsFromNow, TimerContext** pTimer );
+        private static unsafe extern uint LLOS_SYSTEM_TIMER_AllocateTimer( UIntPtr callback, UIntPtr callbackContext, ulong microsecondsFromNow, TimerContext** pTimer );
 
         [DllImport( "C" )]
         public static unsafe extern void LLOS_SYSTEM_TIMER_FreeTimer( TimerContext* pTimer );

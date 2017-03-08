@@ -15,8 +15,10 @@ namespace Microsoft.Zelig.Runtime.TargetPlatform.ARMv6.SmartHandles
         //
         // State
         //
-        
-        uint m_basepri;
+
+        private static ProcessorARMv6M.ISR_NUMBER s_softwareExceptionMode = ProcessorARMv6M.ISR_NUMBER.SVCall;
+        //--//
+        private uint m_basepri;
 
         //
         // Constructor Methods
@@ -43,7 +45,7 @@ namespace Microsoft.Zelig.Runtime.TargetPlatform.ARMv6.SmartHandles
         public void Toggle()
         {
             uint basepri = ProcessorARMv6M.SetPriMaskRegister( m_basepri );
-            ProcessorARMv6M.Nop();
+            ProcessorARMv6MForLlvm.Nop();
             ProcessorARMv6M.SetPriMaskRegister( basepri );
         }
 
@@ -98,8 +100,8 @@ namespace Microsoft.Zelig.Runtime.TargetPlatform.ARMv6.SmartHandles
                 case ProcessorARMv6M.ISR_NUMBER.HardFault       : return HardwareException.Fault; 
                 case ProcessorARMv6M.ISR_NUMBER.SVCall          : return HardwareException.Service;
                 case ProcessorARMv6M.ISR_NUMBER.ReservedForDebug: return HardwareException.Debug;
-                case ProcessorARMv6M.ISR_NUMBER.PendSV          : return HardwareException.SoftwareInterrupt;
-                case ProcessorARMv6M.ISR_NUMBER.SysTick         : return HardwareException.SoftwareInterrupt;
+                case ProcessorARMv6M.ISR_NUMBER.PendSV          : return HardwareException.PendSV;
+                case ProcessorARMv6M.ISR_NUMBER.SysTick         : return HardwareException.SysTick;
                 case ProcessorARMv6M.ISR_NUMBER.Reset           :
                 case ProcessorARMv6M.ISR_NUMBER.Reserved4       :
                 case ProcessorARMv6M.ISR_NUMBER.Reserved5       :
@@ -120,7 +122,19 @@ namespace Microsoft.Zelig.Runtime.TargetPlatform.ARMv6.SmartHandles
 
         private ProcessorARMv6M.ISR_NUMBER GetMode( )
         {
-            return (ProcessorARMv6M.ISR_NUMBER)(ProcessorARMv6M.CMSIS_STUB_SCB__get_IPSR( ) & 0x1FF);
+            return s_softwareExceptionMode | (ProcessorARMv6M.ISR_NUMBER)(ProcessorARMv6M.CMSIS_STUB_SCB__get_IPSR( ) & 0x1FF);
+        }
+
+        [Inline]
+        internal static void SetSoftwareExceptionMode( )
+        {
+            s_softwareExceptionMode = ProcessorARMv6M.ISR_NUMBER.SVCall;
+        }
+
+        [Inline]
+        internal static void ResetSoftwareExceptionMode( )
+        {
+            s_softwareExceptionMode = ProcessorARMv6M.ISR_NUMBER.ThreadMode;
         }
     }
 }

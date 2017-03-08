@@ -151,8 +151,6 @@
     <Compile Include="System\Diagnostics\Contracts\Contracts.cs" />
     <Compile Include="System\Diagnostics\Debugger.cs" />
     <Compile Include="System\Diagnostics\DebuggerAttributes.cs" />
-    <Compile Include="System\Diagnostics\StackFrame.cs" />
-    <Compile Include="System\Diagnostics\StackTrace.cs" />
     <Compile Include="System\DivideByZeroException.cs" />
     <Compile Include="System\Double.cs" />
     <Compile Include="System\Empty.cs" />
@@ -303,6 +301,7 @@
     <Compile Include="System\Runtime\CompilerServices\INotifyCompletion.cs" />
     <Compile Include="System\Runtime\CompilerServices\InternalsVisibleToAttribute.cs" />
     <Compile Include="System\Runtime\CompilerServices\IsVolatile.cs" />
+    <Compile Include="System\Runtime\CompilerServices\JitHelpers.cs" />
     <Compile Include="System\Runtime\CompilerServices\MethodImplAttribute.cs" />
     <Compile Include="System\Runtime\CompilerServices\RuntimeCompatibilityAttribute.cs" />
     <Compile Include="System\Runtime\CompilerServices\RuntimeHelpers.cs" />

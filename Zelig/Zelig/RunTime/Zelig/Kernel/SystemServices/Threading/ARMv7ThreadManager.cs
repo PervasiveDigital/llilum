@@ -6,7 +6,7 @@
 namespace Microsoft.Zelig.Runtime
 {
 
-    using Microsoft.Zelig.Runtime.TargetPlatform.ARMv7;
+    using ARMv7 = Microsoft.Zelig.Runtime.TargetPlatform.ARMv7;
 
 
     public abstract class ARMv7ThreadManager : ThreadManager
@@ -16,36 +16,8 @@ namespace Microsoft.Zelig.Runtime
         //--//
 
         //
-        // State 
-        //
-        
-        protected ThreadImpl m_exceptionThread;
-
-        //--//
-
-        //
         // Helper methods
         //
-
-        public override void InitializeAfterStaticConstructors( uint[] systemStack )
-        {
-            base.InitializeAfterStaticConstructors( systemStack );
-
-            //
-            // Make the stack the frame size + 1, so that we can fit the frame and be aligned to 8 bytes (array as a length member). 
-            // Currently hardcoded to 128, see https://github.com/NETMF/llilum/issues/160
-            //
-            m_exceptionThread = new ThreadImpl( Bootstrap.Initialization, new uint[ 128 ] );
-
-            //
-            // The msp thread is never started, so we have to manually register them, to enable the debugger to see them.
-            //
-            RegisterThread(m_exceptionThread);
-
-            //--//
-
-            m_exceptionThread.SetupForExceptionHandling( unchecked((uint)ProcessorARMv7M.IRQn_Type.Reset_IRQn) );
-        }
 
         public override unsafe void StartThreads( )
         {
@@ -66,7 +38,7 @@ namespace Microsoft.Zelig.Runtime
             // Enable context switch through SVC call that will fall back into Thread/PSP mode onto 
             // whatever thread the standard thread manager intended to switch into 
             //
-            ProcessorARMv7M.DisableInterruptsWithPriorityLevelLowerOrEqualTo( ProcessorARMv7M.c_Priority__SVCCall + 1 );
+            ARMv7.ProcessorARMv7M.DisableInterruptsWithPriorityLevelLowerOrEqualTo( ARMv7.ProcessorARMv7M.c_Priority__SVCCall + 1 );
 
             //
             // Let the standard thread manager set up the next thread to run and request the switch to its context
@@ -95,7 +67,7 @@ namespace Microsoft.Zelig.Runtime
             //
             // If context switch was not already performed, we need to jump else where
             //
-            ProcessorARMv7M.RaiseSupervisorCall( ProcessorARMv7M.SVC_Code.SupervisorCall__RetireThread );
+            ARMv7.ProcessorARMv7M.RaiseSupervisorCall( ARMv7.ProcessorARMv7M.SVC_Code.SupervisorCall__RetireThread );
 
             //
             // We should never get here
@@ -105,74 +77,7 @@ namespace Microsoft.Zelig.Runtime
 
         //
         // Access methods 
-        // 
-
-        public override ThreadImpl InterruptThread
-        {
-            get
-            {
-                return m_exceptionThread;
-            }
-        }
-
-        public override ThreadImpl FastInterruptThread
-        {
-            get
-            {
-                return m_exceptionThread;
-            }
-        }
-
-        public override ThreadImpl AbortThread
-        {
-            get
-            {
-                return m_exceptionThread;
-            }
-        }
-
-        //--//
-
-        //////[Inline]
-        //////private unsafe void SetNextThread( ThreadImpl th )
-        //////{
-
-        //////}
-
-        //////[Inline]
-        //////private unsafe ThreadImpl GetNextThread( )
-        //////{
-        //////    return null;
-        //////}
-
-        //////[Inline]
-        //////private unsafe void SetCurrentThread( ThreadImpl th )
-        //////{
-        //////}
-
-        //////[Inline]
-        //////private unsafe ThreadImpl GetCurrentThread( )
-        //////{
-        //////    return null;
-        //////}
-
-        ////////--//
-
-        //////[Inline]
-        //////private static extern unsafe void CUSTOM_STUB_CTX_SWITCH_SetCurrentThread( void* current );
-
-
-        //////[Inline]
-        //////private static extern unsafe void* CUSTOM_STUB_CTX_SWITCH_GetCurrentThread( );
-
-
-        //////[Inline]
-        //////private static extern unsafe void CUSTOM_STUB_CTX_SWITCH_SetNextThread( void* next );
-
-
-        //////[Inline]
-        //////private static extern unsafe void* CUSTOM_STUB_CTX_SWITCH_GetNextThread( );
-
+        //
 
         protected override void IdleThread( )
         {
@@ -180,7 +85,7 @@ namespace Microsoft.Zelig.Runtime
             //BugCheck.Log( "!!! Idle thread running !!!" );
             //BugCheck.Log( "!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 
-            ProcessorARMv7M.InitiateContextSwitch( );
+            ARMv7.ProcessorARMv7M.InitiateContextSwitch( );
 
             SmartHandles.InterruptState.EnableAll( ); 
              

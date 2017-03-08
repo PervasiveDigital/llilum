@@ -43,7 +43,7 @@ namespace Microsoft.Zelig.Runtime.TargetPlatform.ARMv7.SmartHandles
         public void Toggle()
         {
             uint basepri = ProcessorARMv7M.SetBasePriRegister( m_basepri );
-            ProcessorARMv7M.Nop();
+            ProcessorARMv7MForLlvm.Nop();
             ProcessorARMv7M.SetBasePriRegister( basepri );
         }
 
@@ -101,8 +101,8 @@ namespace Microsoft.Zelig.Runtime.TargetPlatform.ARMv7.SmartHandles
                 case ProcessorARMv7M.ISR_NUMBER.UsageFault      : return HardwareException.Fault;
                 case ProcessorARMv7M.ISR_NUMBER.SVCall          : return HardwareException.Service;
                 case ProcessorARMv7M.ISR_NUMBER.ReservedForDebug: return HardwareException.Debug;
-                case ProcessorARMv7M.ISR_NUMBER.PendSV          : return HardwareException.SoftwareInterrupt;
-                case ProcessorARMv7M.ISR_NUMBER.SysTick         : return HardwareException.SoftwareInterrupt;
+                case ProcessorARMv7M.ISR_NUMBER.PendSV          : return HardwareException.PendSV;
+                case ProcessorARMv7M.ISR_NUMBER.SysTick         : return HardwareException.SysTick;
                 case ProcessorARMv7M.ISR_NUMBER.Reset           :
                 case ProcessorARMv7M.ISR_NUMBER.Reserved7       :
                 case ProcessorARMv7M.ISR_NUMBER.Reserved8       :

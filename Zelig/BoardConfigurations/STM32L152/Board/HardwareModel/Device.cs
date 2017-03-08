@@ -4,7 +4,10 @@
 
 namespace Microsoft.Llilum.STM32L152
 {
-    public sealed class Device : Microsoft.CortexM3OnMBED.Device
+    using Chipset = Microsoft.CortexM3OnMBED;
+
+
+    public sealed class Device : Chipset.Device
     {
     }
 }

@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft Corporation.    All rights reserved.
 //
 
-//#define THREADING_RTOS
 
 namespace Microsoft.CortexM0OnMBED
 {
@@ -15,69 +14,7 @@ namespace Microsoft.CortexM0OnMBED
     
     public abstract class Processor : ChipsetModel.Processor 
     {
-
-        public new abstract class Context : ChipsetModel.Processor.Context
-        {
-            //
-            // State
-            //
-            protected UIntPtr m_nativeContext;
-
-            //--//
-            protected Context(RT.ThreadImpl owner) : base(owner)
-            {
-            }
-
-            //
-            // Extensibility 
-            //
-#if THREADING_RTOS
-            public override void SwitchTo()
-            {
-                //
-                // When running on a RTOS, we will request the underlying system to choose the next thread
-                // based on our indications. Need to solve priority and lock contention issues, e.g. priority inversion
-                // issues. 
-                //
-         
-                RTOS.Threading.SwitchToContext( m_nativeContext );
-            }
-#endif 
-
-            //
-            // RTOS Extensibility
-            // 
-
-            protected override UIntPtr CreateNativeContext( UIntPtr entryPoint, UIntPtr stack, int stackSize )
-            {
-                return RTOS.Threading.CreateNativeContext( entryPoint, stack, stackSize );
-            }
-
-            protected override void SwitchToContext( UIntPtr nativeContext )
-            {
-                RTOS.Threading.SwitchToContext( nativeContext );
-            }
-            
-            protected override void Yield( UIntPtr nativeContext )
-            {
-                RTOS.Threading.Yield( nativeContext );
-            }
-        
-            protected override void Retire( UIntPtr nativeContext )
-            {
-                RTOS.Threading.Retire( nativeContext );
-            }
-        }
-
         //--//
-
-#if THREADING_RTOS
-        [RT.Inline]
-        public override Microsoft.Zelig.Runtime.Processor.Context AllocateProcessorContext()
-        {
-            return new Context();
-        }        
-#endif
         
         //
         // Access methods
@@ -128,10 +65,10 @@ namespace Microsoft.CortexM0OnMBED
 
         [RT.BottomOfCallStack()]
         [RT.HardwareExceptionHandler(RT.HardwareException.Interrupt)]
-        private static void InterruptHandler( ref Context.RegistersOnStack registers )
+        private static void InterruptHandler( UIntPtr stackPtr )
         {
             s_repeatedAbort = false;
-            Context.InterruptHandlerWithContextSwitch( ref registers );
+            Context.InterruptHandlerWithContextSwitch( stackPtr );
         }
 
         [RT.BottomOfCallStack()]
@@ -152,23 +89,25 @@ namespace Microsoft.CortexM0OnMBED
         }
 
         //--//
-        
+
         [RT.NoInline]
-        [RT.NoReturn()]
-        [RT.HardwareExceptionHandler(RT.HardwareException.UndefinedInstruction)]
-        [RT.MemoryUsage(RT.MemoryUsage.Bootstrap)]
-        static void UndefinedInstruction()
+        [RT.NoReturn( )]
+        [RT.HardwareExceptionHandler( RT.HardwareException.UndefinedInstruction )]
+        [RT.MemoryUsage( RT.MemoryUsage.Bootstrap )]
+        static void UndefinedInstruction( )
         {
-            RT.Processor.Instance.Breakpoint();
+            //////RT.Processor.Instance.Breakpoint();
+            while(true) { }
         }
 
         [RT.NoInline]
-        [RT.NoReturn()]
-        [RT.HardwareExceptionHandler(RT.HardwareException.PrefetchAbort)]
-        [RT.MemoryUsage(RT.MemoryUsage.Bootstrap)]
-        static void PrefetchAbort()
+        [RT.NoReturn( )]
+        [RT.HardwareExceptionHandler( RT.HardwareException.PrefetchAbort )]
+        [RT.MemoryUsage( RT.MemoryUsage.Bootstrap )]
+        static void PrefetchAbort( )
         {
-            RT.Processor.Instance.Breakpoint();
+            //////RT.Processor.Instance.Breakpoint();
+            while(true) { }
         }
 
 
@@ -176,16 +115,17 @@ namespace Microsoft.CortexM0OnMBED
         private static int s_abortCount = 0;
 
         [RT.NoInline]
-        [RT.NoReturn()]
-        [RT.HardwareExceptionHandler(RT.HardwareException.DataAbort)]
-        [RT.MemoryUsage(RT.MemoryUsage.Bootstrap)]
-        static void DataAbort()
+        [RT.NoReturn( )]
+        [RT.HardwareExceptionHandler( RT.HardwareException.DataAbort )]
+        [RT.MemoryUsage( RT.MemoryUsage.Bootstrap )]
+        static void DataAbort( )
         {
-            bool repeatedAbort = s_repeatedAbort;
-            s_repeatedAbort = true;
-            s_abortCount++;
-            if (repeatedAbort)
-            RT.Processor.Instance.Breakpoint();
+            //////bool repeatedAbort = s_repeatedAbort;
+            //////s_repeatedAbort = true;
+            //////s_abortCount++;
+            //////if (repeatedAbort)
+            //////RT.Processor.Instance.Breakpoint();
+            while(true) { }
         }
     }
 }
